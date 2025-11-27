@@ -24,12 +24,19 @@ public class ProductService {
         return productPage.map(productMapper::toResponseDto);
     }
 
+    /// Get Product by ID Function
     public ProductResponseDto getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with this id: " + id));
         return productMapper.toResponseDto(product);
     }
 
+    ///  Get Product by Category Function
+    public Page<ProductResponseDto> getProductsByCategory(int page, int size, String category) {
+
+        Page<Product> productPage = productRepository.findByCategory(PageRequest.of(page, size), category);
+        return productPage.map(productMapper::toResponseDto);
+    }
 
     /// Add Product Function. Convert Product Request Dto to Product then save, and return Product Response Dto
     public ProductResponseDto addProducts(ProductRequestDto productRequestDto) {
@@ -38,5 +45,18 @@ public class ProductService {
         return productMapper.toResponseDto(product);
     }
 
+    /// Update Product Function
+    public ProductResponseDto updateProduct(ProductRequestDto productRequestDto, Long id) {
 
+        Product product = productMapper.toEntity(productRequestDto);
+        product.setId(id);
+        productRepository.save(product);
+        return productMapper.toResponseDto(product);
+    }
+
+
+    public Void deleteById(Long id) {
+        productRepository.deleteById(id);
+        return null;
+    }
 }

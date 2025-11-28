@@ -8,6 +8,8 @@ import com.example.FakeStoreApi.utility.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,11 +20,35 @@ public class ProductService {
     private final ProductMapper productMapper;
 
     /// Get all Product function
-    public Page<ProductResponseDto> getProducts(int page, int size) {
-        Page<Product> productPage = productRepository.findAll(PageRequest.of(page, size));
+    public Page<ProductResponseDto> getProducts(
+            int page,
+            int size,
+            String category,
+            String search,
+            String sortBy
+    ) {
 
-        return productPage.map(productMapper::toResponseDto);
+        Sort sort = switch (sortBy.toLowerCase()) {
+            case "price_asc" -> Sort.by("price").ascending();
+            case "price_desc" -> Sort.by("price").descending();
+            case "name_asc" -> Sort.by("title").ascending();
+            case "name_desc" -> Sort.by("title").descending();
+            default -> Sort.unsorted();
+        };   /// Filter Condition
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        if(category == null) category = "";
+        if(search == null) search = "";
+
+        Page<Product> products =
+                productRepository.findByCategoryContainingIgnoreCaseAndTitleContainingIgnoreCase(
+                        category, search, pageable
+                );
+
+        return products.map(productMapper::toResponseDto);
     }
+
 
     /// Get Product by ID Function
     public ProductResponseDto getProductById(Long id) {
@@ -30,13 +56,8 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found with this id: " + id));
         return productMapper.toResponseDto(product);
     }
+    
 
-    ///  Get Product by Category Function
-    public Page<ProductResponseDto> getProductsByCategory(int page, int size, String category) {
-
-        Page<Product> productPage = productRepository.findByCategory(PageRequest.of(page, size), category);
-        return productPage.map(productMapper::toResponseDto);
-    }
 
     /// Add Product Function. Convert Product Request Dto to Product then save, and return Product Response Dto
     public ProductResponseDto addProducts(ProductRequestDto productRequestDto) {

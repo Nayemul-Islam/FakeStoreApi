@@ -18,30 +18,23 @@ public class ProductsController {
 
     private final ProductService productService;
 
-    /// Get All products Endpoint
+    /// Get Products Endpoint
     @GetMapping("/")
     public ResponseEntity<Page<ProductResponseDto>> getProducts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "none") String sortBy
     ) {
-        return ResponseEntity.ok(productService.getProducts(page, size));
+        return ResponseEntity.ok(productService.getProducts(page, size, category, search, sortBy));
     }
+
 
     /// Get Product by ID Endpoint
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
-    }
-
-
-    /// Get Products by Category Endpoint
-    @GetMapping("/category/{category}")
-    public ResponseEntity<Page<ProductResponseDto>> getProductsByCategory(
-            @PathVariable String category,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return ResponseEntity.ok(productService.getProductsByCategory(page, size, category));
     }
 
     /// Add Product Endpoint
@@ -59,6 +52,6 @@ public class ProductsController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
 
-        return  ResponseEntity.ok(productService.deleteById(id));
+        return ResponseEntity.ok(productService.deleteById(id));
     }
 }

@@ -18,19 +18,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@CrossOrigin
 public class AuthController {
 
     private final AuthService authService;
-
-
-
-    @GetMapping("/users")
-    public List<User> getUsers() {
-
-        return authService.getUsers();
-    }
-
-
     @PostMapping("/signin")
     public ResponseEntity<SignInResponseDto> signIn(@RequestBody SignInRequestDto signInRequestDto) {
         return ResponseEntity.ok(authService.signin(signInRequestDto));

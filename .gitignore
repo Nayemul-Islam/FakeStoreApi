@@ -14,7 +14,7 @@ target/
 .sts4-cache
 
 #Local config files (DO NOT PUSH)
-application.properties
+**/application.properties
 
 ### IntelliJ IDEA ###
 .idea
